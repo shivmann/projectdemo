@@ -1,73 +1,191 @@
-
-
 pipeline {
+
+
 
   environment {
 
-    registry = "shivshakti/projectdemo"
+
+
+    registry = "sankethshinde/demoproject"
+
+
 
     registryCredential = 'docker-creds'
 
+
+
     dockerImage = ''
 
+
+
   }
+
+
 
   agent any
 
+
+
   stages {
+
+
 
     stage('Cloning Git') {
 
+
+
       steps {
 
-        git 'https://github.com/shivmann/projectdemo.git'
+
+
+        git 'https://github.com/shindesanket/Docker-Jenkins-Demo'
+
+
 
       }
 
+
+
     }
+
+
 
     stage('Building image') {
 
+
+
       steps{
 
+
+
         script {
+
+
 
           dockerImage = docker.build registry + ":$BUILD_NUMBER"
 
+
+
         }
+
+
 
       }
 
+
+
     }
+
+
 
     stage('Deploy Image') {
 
+
+
       steps{
+
+
 
         script {
 
+
+
           docker.withRegistry( '', registryCredential ) {
+
+
 
             dockerImage.push()
 
+
+
           }
+
+
 
         }
 
+
+
       }
+
+
 
     }
 
-    stage('Remove Unused docker image') {
+	stage('Remove Existing Container') {
+
+
 
       steps{
 
-        sh "docker rmi $registry:$BUILD_NUMBER"
+	  script {
+
+			sh '''
+
+
+
+			a="$(docker container ls --format="{{.ID}}\t{{.Ports}}" | grep "8000" | awk '{print $1}')"
+
+
+
+			echo $a
+
+
+
+			if [ -z "$a" ]
+
+			then
+
+			echo "do not delete"
+
+			else
+
+			docker rm -f $a
+
+			fi
+
+
+
+			'''
+
+		}
 
       }
 
+
+
     }
 
+    
+
+    	stage('Run Docker Image in Lab') {
+
+
+
+      steps{
+
+
+
+        script {
+
+
+
+		        sh "docker run -d -p 5000:5000 ${dockerImage.imageName()}"
+
+        }
+
+
+
+      }
+
+
+
+	}
+
+
+
   }
+
+
 
 }
