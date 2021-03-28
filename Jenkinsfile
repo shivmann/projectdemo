@@ -6,7 +6,7 @@ pipeline {
 
 
 
-    registry = "sankethshinde/demoproject"
+    registry = "shivshakti/projectdemo"
 
 
 
@@ -38,7 +38,7 @@ pipeline {
 
 
 
-        git 'https://github.com/shindesanket/Docker-Jenkins-Demo'
+        git 'https://github.com/shivmann/projectdemo.git'
 
 
 
